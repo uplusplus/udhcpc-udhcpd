@@ -1,0 +1,4 @@
+dumpleases
+*.o
+udhcpc
+udhcpd
