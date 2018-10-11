@@ -163,8 +163,8 @@ static struct config_keyword keywords[] = {
 	{"conflict_time",read_u32,&(server_config.conflict_time),"3600"},
 	{"offer_time",	read_u32, &(server_config.offer_time),	"60"},
 	{"min_lease",	read_u32, &(server_config.min_lease),	"60"},
-	{"lease_file",	read_str, &(server_config.lease_file),	"/var/lib/misc/udhcpd.leases"},
-	{"pidfile",	read_str, &(server_config.pidfile),	"/var/run/udhcpd.pid"},
+	{"lease_file",	read_str, &(server_config.lease_file),	"/data/misc/udhcpd.leases"},
+	{"pidfile",	read_str, &(server_config.pidfile),	"/data/misc/run/udhcpd.pid"},
 	{"notify_file", read_str, &(server_config.notify_file),	""},
 	{"siaddr",	read_ip,  &(server_config.siaddr),	"0.0.0.0"},
 	{"sname",	read_str, &(server_config.sname),	""},
@@ -259,7 +259,7 @@ void read_leases(char *file)
 	FILE *fp;
 	unsigned int i = 0;
 	struct dhcpOfferedAddr lease;
-	
+	LOG(LOG_INFO, "lease file path: %s", file);
 	if (!(fp = fopen(file, "r"))) {
 		LOG(LOG_ERR, "Unable to open %s for reading", file);
 		return;

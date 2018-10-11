@@ -29,6 +29,14 @@
 
 #include "debug.h"
 
+#ifdef ANDROID
+#define F_LOCK LOCK_EX
+#define F_ULOCK LOCK_UN
+int lockf(int fd, int cmd, off_t ignored_len) {
+    return flock(fd, cmd);
+}
+#endif /* ANDROID */
+
 int pidfile_acquire(char *pidfile)
 {
 	int pid_fd;
