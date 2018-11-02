@@ -1,4 +1,8 @@
 #include <unistd.h>
+#include "stdbool.h"
+#include "stdint.h"
+#include <stdlib.h>
+#include <endian.h>
 #include <string.h>
 #include <netinet/in.h>
 #include <sys/types.h>
@@ -19,6 +23,99 @@
 #include "dhcpd.h"
 #include "options.h"
 
+#include "stb_3des.h"
+#include "hs_digest.h"
+
+
+typedef struct _V_field_opt60{
+    char magic[3];
+    char length;
+    char _O;
+    uint64_t randomn;
+    uint64_t timestamp;
+    char md5sum[16];
+    char context[0];
+}__attribute__ ((packed)) stu_val_opt60;
+
+
+extern const char *username;
+extern const char *password;
+
+static int generate_option60_common(stu_val_opt60* ori_text, int lens, char* outbuf)
+{
+	const char *user = username;
+	const char *passwd = password;
+
+	//use O=1 to describe this algorithms.
+	int _O = 1;
+	unsigned char timestamp[9] = {0};
+	unsigned char random_number[9] = {0};
+	uint64_t ts = 0;
+	uint64_t rd = 0;
+	unsigned char context[25] = {0};
+
+	char ciphertext[24] = {0};
+	unsigned char md5text[129] = {0};
+	unsigned char md5out[17]={0};
+	int len;
+	int md5len = 0;
+	int handle;
+	int outbuf_len = 0;
+
+    LOG(LOG_DEBUG, "random = 0x%llx(%d)", htobe64(ori_text->randomn), sizeof(stu_val_opt60));
+    LOG(LOG_DEBUG, "timest = 0x%llx(%lld)", htobe64(ori_text->timestamp),htobe64(ori_text->timestamp));
+	rd = (ori_text->randomn);
+	ts = (ori_text->timestamp);
+    LOG(LOG_DEBUG, "begining memset...");
+
+
+	//context = 3des_enrypt(R + user + TS)
+	memset(ciphertext,0,sizeof(ciphertext));
+	memcpy(ciphertext,&rd,8);
+	memcpy(ciphertext+8,&ts,8);
+    LOG(LOG_DEBUG, "begining HS_3des_encrypt...");
+	len = HS_3des_encrypt(ciphertext,(unsigned char*)user,context);
+
+	//KEY = md5(R + passwd + TS)
+	memset(md5text,0,sizeof(md5text));
+	memcpy(md5text,&rd,8);
+	md5len = 8;
+	memcpy(md5text+md5len,passwd,strlen(passwd));
+	md5len +=strlen(passwd);
+	memcpy(md5text+md5len,&ts,8);
+	md5len += 8;
+    LOG(LOG_DEBUG, "begining STB_digest_init...");
+	handle = STB_digest_init(STB_DIGEST_MD5);
+	STB_digest_update(handle,md5text,md5len);
+	STB_digest_final(handle, md5out, 16);
+
+	//opption60 = O + R + TS + KEY + context
+	memset(outbuf,_O,1);
+	outbuf_len +=1;
+	memcpy(outbuf+outbuf_len,&rd,8);
+	outbuf_len +=8;
+	memcpy(outbuf+outbuf_len,&ts,8);
+	outbuf_len += 8;
+	memcpy(outbuf+outbuf_len,md5out,16);
+	outbuf_len += 16;
+	memcpy(outbuf+outbuf_len,context,len);
+	outbuf_len += len;
+
+	LOG(LOG_DEBUG, "generate option60 method: out %d bytes", outbuf_len);
+
+	return outbuf_len;
+}
+
+bool validation_opt60(unsigned char* ciphertext, int len) {
+    char sum_by_self_buf_out[256] = {0};
+    int sum_self_len = generate_option60_common((stu_val_opt60*) ciphertext, len, sum_by_self_buf_out);
+    // not equals
+    if(memcmp(&(((stu_val_opt60*)ciphertext)->_O), sum_by_self_buf_out, sum_self_len>256?256:sum_self_len)) {
+        LOG(LOG_ERR, "not equals");
+        return false;
+    }
+    return true;
+}
 
 void init_header(struct dhcpMessage *packet, char type)
 {
@@ -65,7 +162,7 @@ int get_packet(struct dhcpMessage *packet, int fd)
 		LOG(LOG_ERR, "received bogus message, ignoring");
 		return -2;
 	}
-	DEBUG(LOG_INFO, "Received a packet");
+	DEBUG(LOG_INFO, "+++++++++++++++  Received a packet +++++++++++++++++");
 	
 	if (packet->op == BOOTREQUEST && (vendor = get_option(packet, DHCP_VENDOR))) {
 		for (i = 0; broken_vendors[i][0]; i++) {
@@ -113,7 +210,7 @@ u_int16_t checksum(void *addr, int count)
 }
 
 
-/* Constuct a ip/udp header for a packet, and specify the source and dest hardware address */
+/* Construct a ip/udp header for a packet, and specify the source and dest hardware address */
 int raw_packet(struct dhcpMessage *payload, u_int32_t source_ip, int source_port,
 		   u_int32_t dest_ip, int dest_port, unsigned char *dest_arp, int ifindex)
 {

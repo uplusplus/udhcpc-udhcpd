@@ -84,7 +84,8 @@ struct dhcpOfferedAddr *find_lease_by_chaddr(u_int8_t *chaddr)
 	unsigned int i;
 
 	for (i = 0; i < server_config.max_leases; i++)
-		if (!memcmp(leases[i].chaddr, chaddr, 16)) return &(leases[i]);
+		if (!memcmp(leases[i].chaddr, chaddr, 16))
+            return &(leases[i]);
 	
 	return NULL;
 }

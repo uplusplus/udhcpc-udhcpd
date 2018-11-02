@@ -30,6 +30,9 @@
 #include "dhcpd.h"
 #include "options.h"
 #include "leases.h"
+#include "stdbool.h"
+
+extern bool validation_opt60(unsigned char* ciphertext, int len);
 
 /* send a packet to giaddr using the kernel ip stack */
 static int send_packet_to_relay(struct dhcpMessage *payload)
@@ -103,6 +106,42 @@ static void add_bootp_options(struct dhcpMessage *packet)
 		strncpy(packet->file, server_config.boot_file, sizeof(packet->file) - 1);
 }
 	
+static void add_opt125_options(struct dhcpMessage* packet) {
+
+	typedef struct {
+        char code;
+        char len;
+        char datas[0];
+    } v_seg_opt125;
+
+    v_seg_opt125 *data = (v_seg_opt125*)calloc(1,256);
+    char VSI_len = (char)strlen("CTCIPTVDHCPAAA");
+    int enterprise_number1 = 0x10203040;
+
+    data->code = DHCP_OPT_125;
+    data->len  = VSI_len+4+1;
+    memcpy(data->datas, (void*)&enterprise_number1, 4);
+    *(data->datas+4) = VSI_len;
+    memcpy(data->datas+4+1, "CTCIPTVDHCPAAA", VSI_len);
+
+    add_option_string(packet->options, (unsigned char *)data);
+    LOG(LOG_DEBUG, "Added option 125");
+
+    int zs = VSI_len+4+1+2;
+    char tmp[zs*8];
+    memset(tmp, 0, zs*8);
+
+    for(int i=0; i<zs; i++) {
+        
+        sprintf(tmp+i*8, "0x%02x(%c) ", ((char*)data)[i], ((char*)data)[i]);
+        //printf("0x%02x(%c) \n", ((char*)data)[i], ((char*)data)[i]);
+    }
+
+    LOG(LOG_DEBUG,"opt125: %s",tmp);
+    free(data);
+    return ;
+
+}
 
 /* send a DHCP OFFER to a DHCP DISCOVER */
 int sendOffer(struct dhcpMessage *oldpacket)
@@ -110,7 +149,7 @@ int sendOffer(struct dhcpMessage *oldpacket)
 	struct dhcpMessage packet;
 	struct dhcpOfferedAddr *lease = NULL;
 	u_int32_t req_align, lease_time_align = server_config.lease;
-	unsigned char *req, *lease_time;
+	unsigned char *req, *lease_time, *ciphertext_opt60 = 0;
 	struct option_set *curr;
 	struct in_addr addr;
 
@@ -170,7 +209,23 @@ int sendOffer(struct dhcpMessage *oldpacket)
 		lease_time_align = server_config.lease;
 	/* ADDME: end of short circuit */		
 	add_simple_option(packet.options, DHCP_LEASE_TIME, htonl(lease_time_align));
+    int len = 0;
+    if ((len = get_option_and_len(oldpacket, DHCP_VENDOR, &ciphertext_opt60))) {
+        LOG(LOG_DEBUG, "ciphertext_opt60_len = %d", len);
 
+        char tmp[len*5];
+        memset(tmp, 0, len*5);
+        for(int i=0; i<len; i++) {
+            sprintf(tmp+i*5, "0x%02x ", ciphertext_opt60[i]);
+        }
+
+        LOG(LOG_DEBUG,"Got: %s",tmp);
+
+        if(true == validation_opt60(ciphertext_opt60, len)) {
+            add_opt125_options(&packet);
+        }
+    }
+    
 	curr = server_config.options;
 	while (curr) {
 		if (curr->data[OPT_CODE] != DHCP_LEASE_TIME)
@@ -218,6 +273,7 @@ int sendACK(struct dhcpMessage *oldpacket, u_int32_t yiaddr)
 	}
 	
 	add_simple_option(packet.options, DHCP_LEASE_TIME, htonl(lease_time_align));
+    add_opt125_options(&packet);
 	
 	curr = server_config.options;
 	while (curr) {

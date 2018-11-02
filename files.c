@@ -151,11 +151,11 @@ static int read_opt(char *line, void *arg)
 
 static struct config_keyword keywords[] = {
 	/* keyword[14]	handler   variable address		default[20] */
-	{"start",	read_ip,  &(server_config.start),	"192.168.0.20"},
-	{"end",		read_ip,  &(server_config.end),		"192.168.0.254"},
+	{"start",	read_ip,  &(server_config.start),	        "192.168.0.20"},
+	{"end",		read_ip,  &(server_config.end),		        "192.168.0.254"},
 	{"interface",	read_str, &(server_config.interface),	"eth0"},
-	{"option",	read_opt, &(server_config.options),	""},
-	{"opt",		read_opt, &(server_config.options),	""},
+	{"option",	read_opt, &(server_config.options),	        ""},
+	{"opt",		read_opt, &(server_config.options),	        ""},
 	{"max_leases",	read_u32, &(server_config.max_leases),	"254"},
 	{"remaining",	read_yn,  &(server_config.remaining),	"yes"},
 	{"auto_time",	read_u32, &(server_config.auto_time),	"7200"},
@@ -163,11 +163,11 @@ static struct config_keyword keywords[] = {
 	{"conflict_time",read_u32,&(server_config.conflict_time),"3600"},
 	{"offer_time",	read_u32, &(server_config.offer_time),	"60"},
 	{"min_lease",	read_u32, &(server_config.min_lease),	"60"},
-	{"lease_file",	read_str, &(server_config.lease_file),	"/data/misc/udhcpd.leases"},
-	{"pidfile",	read_str, &(server_config.pidfile),	"/data/misc/run/udhcpd.pid"},
+	{"lease_file",	read_str, &(server_config.lease_file),	"/data/misc/udhcpd/udhcpd.leases"},
+	{"pidfile",	read_str, &(server_config.pidfile),	        "/data/misc/udhcpd/udhcpd.pid"},
 	{"notify_file", read_str, &(server_config.notify_file),	""},
-	{"siaddr",	read_ip,  &(server_config.siaddr),	"0.0.0.0"},
-	{"sname",	read_str, &(server_config.sname),	""},
+	{"siaddr",	read_ip,  &(server_config.siaddr),	        "0.0.0.0"},
+	{"sname",	read_str, &(server_config.sname),	        ""},
 	{"boot_file",	read_str, &(server_config.boot_file),	""},
 	/*ADDME: static lease */
 	{"",		NULL, 	  NULL,				""}

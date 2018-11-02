@@ -22,6 +22,7 @@
  */
 
 #include <fcntl.h>
+#include <stdbool.h>
 #include <string.h>
 #include <stdlib.h>
 #include <sys/wait.h>
@@ -73,13 +74,10 @@ static void signal_handler(int sig)
 			strerror(errno));
 	}
 }
+const char* username = NULL;
+const char* password = NULL;
 
-
-#ifdef COMBINED_BINARY	
-int udhcpd_main(int argc, char *argv[])
-#else
 int main(int argc, char *argv[])
-#endif
 {	
 	fd_set rfds;
 	struct timeval tv;
@@ -95,16 +93,39 @@ int main(int argc, char *argv[])
 	int pid_fd;
 	int max_sock;
 	int sig;
-	
+	int opt;
+    bool cfged = false;
+    const char * optstring = "u:p:f:"
+
 	OPEN_LOG("udhcpd");
 	LOG(LOG_INFO, "udhcp server (v%s) started", VERSION);
 
 	memset(&server_config, 0, sizeof(struct server_config_t));
-	
-	if (argc < 2)
-		read_config(DHCPD_CONF_FILE);
-	else read_config(argv[1]);
 
+    while ((opt = getopt(argc, argv, optstring)) != -1) {
+	    switch (opt) {
+        case 'f':
+            LOG(LOG_INFO, "configs = %s", optarg);
+            if(!optarg) read_config(DHCPD_CONF_FILE);
+            else read_config(optarg);
+            cfged = true;
+            break;
+        case 'u':
+            LOG(LOG_INFO, "Username = %s", optarg);
+            username = optarg;
+            break;
+        case 'p':
+            LOG(LOG_INFO, "Password = %s", optarg);
+            password = optarg;
+            break;
+        case '?':
+        default:
+            LOG(LOG_ERR, "Invalid argument(s), exit now");
+            return -1;
+        }
+	}
+    if(!cfged)
+        read_config(DHCPD_CONF_FILE);
 	pid_fd = pidfile_acquire(server_config.pidfile);
 	pidfile_write_release(pid_fd);
 

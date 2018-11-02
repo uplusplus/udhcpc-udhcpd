@@ -30,6 +30,7 @@ struct dhcp_option {
 extern struct dhcp_option options[];
 extern int option_lengths[];
 
+int get_option_and_len(struct dhcpMessage *packet, int code, uint8_t** buf_out);
 unsigned char *get_option(struct dhcpMessage *packet, int code);
 int end_option(unsigned char *optionptr);
 int add_option_string(unsigned char *optionptr, unsigned char *string);

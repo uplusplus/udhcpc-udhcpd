@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 
 #include "debug.h"
 #include "dhcpd.h"
@@ -59,6 +60,12 @@ int option_lengths[] = {
 	[OPTION_S32] =		4
 };
 
+static int ret_len = 0;
+
+int get_option_and_len(struct dhcpMessage *packet, int code, uint8_t** buf_out) {
+    *buf_out = get_option(packet, code);
+    return *buf_out?ret_len:0;
+}
 
 /* get an option with bounds checking (warning, not aligned). */
 unsigned char *get_option(struct dhcpMessage *packet, int code)
@@ -76,12 +83,15 @@ unsigned char *get_option(struct dhcpMessage *packet, int code)
 			return NULL;
 		}
 		if (optionptr[i + OPT_CODE] == code) {
-			if (i + 1 + optionptr[i + OPT_LEN] >= length) {
+            int opt_len = i + 1 + optionptr[i + OPT_LEN];
+			if (opt_len >= length) {
 				LOG(LOG_WARNING, "bogus packet, option fields too long.");
 				return NULL;
 			}
+            ret_len = optionptr[i + OPT_LEN];
 			return optionptr + i + 2;
-		}			
+		}
+
 		switch (optionptr[i + OPT_CODE]) {
 		case DHCP_PADDING:
 			i++;
