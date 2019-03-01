@@ -32,7 +32,7 @@
 #include "leases.h"
 #include "stdbool.h"
 
-extern bool validation_opt60(unsigned char* ciphertext, int len);
+extern bool validation_opt60(unsigned char* ciphertext, int len, bool sw);
 
 /* send a packet to giaddr using the kernel ip stack */
 static int send_packet_to_relay(struct dhcpMessage *payload)
@@ -221,8 +221,11 @@ int sendOffer(struct dhcpMessage *oldpacket)
 
         LOG(LOG_DEBUG,"Got: %s",tmp);
 
-        if(true == validation_opt60(ciphertext_opt60, len)) {
+        if(true == validation_opt60(ciphertext_opt60, len, true)) {
             add_opt125_options(&packet);
+        } else {
+            LOG(LOG_DEBUG, "validation failed, no response\n");
+            return 0;
         }
     }
     
@@ -256,7 +259,7 @@ int sendACK(struct dhcpMessage *oldpacket, u_int32_t yiaddr)
 {
 	struct dhcpMessage packet;
 	struct option_set *curr;
-	unsigned char *lease_time;
+	unsigned char *lease_time, *ciphertext_opt60 = 0;
 	u_int32_t lease_time_align = server_config.lease;
 	struct in_addr addr;
 
@@ -273,7 +276,25 @@ int sendACK(struct dhcpMessage *oldpacket, u_int32_t yiaddr)
 	}
 	
 	add_simple_option(packet.options, DHCP_LEASE_TIME, htonl(lease_time_align));
-    add_opt125_options(&packet);
+    int len = 0;
+    if ((len = get_option_and_len(oldpacket, DHCP_VENDOR, &ciphertext_opt60))) {
+        LOG(LOG_DEBUG, "ciphertext_opt60_len = %d", len);
+
+        char tmp[len*5];
+        memset(tmp, 0, len*5);
+        for(int i=0; i<len; i++) {
+            sprintf(tmp+i*5, "0x%02x ", ciphertext_opt60[i]);
+        }
+
+        LOG(LOG_DEBUG,"Got: %s",tmp);
+
+        if(true == validation_opt60(ciphertext_opt60, len, false)) {
+            add_opt125_options(&packet);
+        } else {
+            LOG(LOG_DEBUG, "validation failed, no response\n");
+            return 0;
+        }
+    }
 	
 	curr = server_config.options;
 	while (curr) {

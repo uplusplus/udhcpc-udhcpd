@@ -41,7 +41,7 @@ typedef struct _V_field_opt60{
 extern const char *username;
 extern const char *password;
 
-static int generate_option60_common(stu_val_opt60* ori_text, int lens, char* outbuf)
+static int generate_option60_common(stu_val_opt60* ori_text, int lens, char* outbuf, bool sw)
 {
 	const char *user = username;
 	const char *passwd = password;
@@ -62,18 +62,18 @@ static int generate_option60_common(stu_val_opt60* ori_text, int lens, char* out
 	int handle;
 	int outbuf_len = 0;
 
-    LOG(LOG_DEBUG, "random = 0x%llx(%d)", htobe64(ori_text->randomn), sizeof(stu_val_opt60));
-    LOG(LOG_DEBUG, "timest = 0x%llx(%lld)", htobe64(ori_text->timestamp),htobe64(ori_text->timestamp));
+    if (sw) LOG(LOG_DEBUG, "random = 0x%llx(%d)", htobe64(ori_text->randomn), sizeof(stu_val_opt60));
+    if (sw) LOG(LOG_DEBUG, "timest = 0x%llx(%lld)", htobe64(ori_text->timestamp),htobe64(ori_text->timestamp));
 	rd = (ori_text->randomn);
 	ts = (ori_text->timestamp);
-    LOG(LOG_DEBUG, "begining memset...");
+    if (sw) LOG(LOG_DEBUG, "begining memset...");
 
 
 	//context = 3des_enrypt(R + user + TS)
 	memset(ciphertext,0,sizeof(ciphertext));
 	memcpy(ciphertext,&rd,8);
 	memcpy(ciphertext+8,&ts,8);
-    LOG(LOG_DEBUG, "begining HS_3des_encrypt...");
+    if (sw) LOG(LOG_DEBUG, "begining HS_3des_encrypt...");
 	len = HS_3des_encrypt(ciphertext,(unsigned char*)user,context);
 
 	//KEY = md5(R + passwd + TS)
@@ -84,7 +84,7 @@ static int generate_option60_common(stu_val_opt60* ori_text, int lens, char* out
 	md5len +=strlen(passwd);
 	memcpy(md5text+md5len,&ts,8);
 	md5len += 8;
-    LOG(LOG_DEBUG, "begining STB_digest_init...");
+    if (sw) LOG(LOG_DEBUG, "begining STB_digest_init...");
 	handle = STB_digest_init(STB_DIGEST_MD5);
 	STB_digest_update(handle,md5text,md5len);
 	STB_digest_final(handle, md5out, 16);
@@ -101,14 +101,14 @@ static int generate_option60_common(stu_val_opt60* ori_text, int lens, char* out
 	memcpy(outbuf+outbuf_len,context,len);
 	outbuf_len += len;
 
-	LOG(LOG_DEBUG, "generate option60 method: out %d bytes", outbuf_len);
+	if (sw) LOG(LOG_DEBUG, "generate option60 method: out %d bytes", outbuf_len);
 
 	return outbuf_len;
 }
 
-bool validation_opt60(unsigned char* ciphertext, int len) {
+bool validation_opt60(unsigned char* ciphertext, int len, bool sw) {
     char sum_by_self_buf_out[256] = {0};
-    int sum_self_len = generate_option60_common((stu_val_opt60*) ciphertext, len, sum_by_self_buf_out);
+    int sum_self_len = generate_option60_common((stu_val_opt60*) ciphertext, len, sum_by_self_buf_out, sw);
     // not equals
     if(memcmp(&(((stu_val_opt60*)ciphertext)->_O), sum_by_self_buf_out, sum_self_len>256?256:sum_self_len)) {
         LOG(LOG_ERR, "not equals");
