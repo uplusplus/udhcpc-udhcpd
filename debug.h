@@ -4,6 +4,7 @@
 #define DEBUG
 
 #include "libbb_udhcp.h"
+#include <sys/types.h>
 
 #include <stdio.h>
 #ifdef SYSLOG

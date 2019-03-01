@@ -1,6 +1,7 @@
 /* files.h */
 #ifndef _FILES_H
 #define _FILES_H
+#include <sys/types.h>
 
 struct config_keyword {
 	char keyword[14];

@@ -3,6 +3,7 @@
 #define _OPTIONS_H
 
 #include "packet.h"
+#include <sys/types.h>
 
 #define TYPE_MASK	0x0F
 

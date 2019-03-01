@@ -9,6 +9,7 @@
 #include <net/if_arp.h>
 #include <net/if.h>
 #include <netinet/in.h>
+#include <sys/types.h>
 
 struct arpMsg {
 	struct ethhdr ethhdr;	 		/* Ethernet header */

@@ -1,5 +1,6 @@
 #ifndef _SERVERPACKET_H
 #define _SERVERPACKET_H
+#include <sys/types.h>
 
 
 int sendOffer(struct dhcpMessage *oldpacket);

@@ -1,6 +1,7 @@
 /* leases.h */
 #ifndef _LEASES_H
 #define _LEASES_H
+#include <sys/types.h>
 
 
 struct dhcpOfferedAddr {
