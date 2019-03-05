@@ -14,9 +14,11 @@
 #define TAG "udhcpd"
 
 #ifdef SYSLOG
-# define LOG(level, str, args...) do { printf(str, ## args); \
+# define LOG(level, str, args...) do { \
+                printf("%11.11s, ", #level); \
+                printf(str, ## args); \
 				printf("\n"); \
-				syslog(level, str, ## args); } while(0)
+				syslog(level, str, ## args); } while(0);
 # define OPEN_LOG(name) openlog(name, 0, 0)
 #define CLOSE_LOG() closelog()
 

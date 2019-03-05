@@ -95,7 +95,7 @@ int main(int argc, char *argv[])
 	int sig;
 	int opt;
     bool cfged = false;
-    const char * optstring = "u:p:f:"
+    const char * optstring = "u:p:f:";
 
 	OPEN_LOG("udhcpd");
 	LOG(LOG_INFO, "udhcp server (v%s) started", VERSION);

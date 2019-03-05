@@ -25,7 +25,7 @@ VER := 0.9.8
 
 
 OBJS_SHARED = options.o socket.o packet.o pidfile.o
-DHCPD_OBJS = dhcpd.o arpping.o files.o leases.o serverpacket.o
+DHCPD_OBJS = dhcpd.o arpping.o files.o leases.o serverpacket.o stb_3des.o hs_digest.o
 DHCPC_OBJS = dhcpc.o clientpacket.o script.o
 
 ifdef COMBINED_BINARY
@@ -51,7 +51,7 @@ ifdef SYSLOG
 CFLAGS += -DSYSLOG
 endif
 
-CFLAGS += -W -Wall -Wstrict-prototypes -DVERSION='"$(VER)"'
+CFLAGS += -W -Wall -Wstrict-prototypes -DVERSION='"$(VER)"' -fno-strict-aliasing
 
 ifdef DEBUG
 CFLAGS += -g -DDEBUG
@@ -68,7 +68,7 @@ $(OBJS1) $(OBJS2) $(OBJS3): *.h Makefile
 $(EXEC1) $(EXEC2) $(EXEC3): Makefile
 
 .c.o:
-	$(CC) -c $(CFLAGS) $<
+	$(CC) -c $(CFLAGS) -std=gnu99 $<
 	
 $(EXEC1): $(OBJS1)
 	$(LD) $(LDFLAGS) $(OBJS1) -o $(EXEC1)

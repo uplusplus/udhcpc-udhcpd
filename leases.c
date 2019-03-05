@@ -105,7 +105,7 @@ struct dhcpOfferedAddr *find_lease_by_yiaddr(u_int32_t yiaddr)
 
 /* find an assignable address, it check_expired is true, we check all the expired leases as well.
  * Maybe this should try expired leases by age... */
-u_int32_t find_address(int check_expired) 
+u_int32_t find_address(int check_expired, int chk_ip_conflict)
 {
 	u_int32_t addr, ret;
 	struct dhcpOfferedAddr *lease = NULL;		
@@ -121,15 +121,14 @@ u_int32_t find_address(int check_expired)
 
 		/* lease is not taken */
 		ret = htonl(addr);
-		if ((!(lease = find_lease_by_yiaddr(ret)) ||
+		if ((!(lease = find_lease_by_yiaddr(ret))) ||
 
 		     /* or it expired and we are checking for expired leases */
-		     (check_expired  && lease_expired(lease))) &&
-
-		     /* and it isn't on the network */
-	    	     !check_ip(ret)) {
-			return ret;
-			break;
+		     (check_expired  && lease_expired(lease))) {
+            if (!chk_ip_conflict)
+			    return ret;
+            else if (!check_ip(ret))
+                return ret;
 		}
 	}
 	return 0;

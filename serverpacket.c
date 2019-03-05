@@ -24,6 +24,7 @@
 #include <arpa/inet.h>
 #include <string.h>
 #include <time.h>
+#include <stdlib.h>
 
 #include "packet.h"
 #include "debug.h"
@@ -181,10 +182,10 @@ int sendOffer(struct dhcpMessage *oldpacket)
 
 	/* otherwise, find a free IP */ /*ADDME: is it a static lease? */
 	} else {
-		packet.yiaddr = find_address(0);
+		packet.yiaddr = find_address(0, 0);
 		
 		/* try for an expired lease */
-		if (!packet.yiaddr) packet.yiaddr = find_address(1);
+		if (!packet.yiaddr) packet.yiaddr = find_address(1, 1);
 	}
 	
 	if(!packet.yiaddr) {
