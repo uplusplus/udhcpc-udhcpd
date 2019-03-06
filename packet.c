@@ -76,6 +76,13 @@ static int generate_option60_common(stu_val_opt60* ori_text, int lens, char* out
     if (sw) LOG(LOG_DEBUG, "begining HS_3des_encrypt...");
 	len = HS_3des_encrypt(ciphertext,(unsigned char*)user,context);
 
+    char tmp1[len*5];
+    memset(tmp1, 0, len*5);
+    for(int i=0; i<len; i++) {
+        sprintf(tmp1+i*5, "0x%02x ", context[i]);
+    }
+    LOG(LOG_DEBUG,"context: %s",tmp1);
+
 	//KEY = md5(R + passwd + TS)
 	memset(md5text,0,sizeof(md5text));
 	memcpy(md5text,&rd,8);
@@ -89,6 +96,13 @@ static int generate_option60_common(stu_val_opt60* ori_text, int lens, char* out
 	STB_digest_update(handle,md5text,md5len);
 	STB_digest_final(handle, md5out, 16);
 
+    char tmp2[md5len*5];
+    memset(tmp2, 0, md5len*5);
+    for(int i=0; i<md5len; i++) {
+        sprintf(tmp2+i*5, "0x%02x ", md5out[i]);
+    }
+    LOG(LOG_DEBUG,"context: %s",tmp2);
+
 	//opption60 = O + R + TS + KEY + context
 	memset(outbuf,_O,1);
 	outbuf_len +=1;
@@ -101,7 +115,15 @@ static int generate_option60_common(stu_val_opt60* ori_text, int lens, char* out
 	memcpy(outbuf+outbuf_len,context,len);
 	outbuf_len += len;
 
+
 	if (sw) LOG(LOG_DEBUG, "generate option60 method: out %d bytes", outbuf_len);
+    char tmp3[outbuf_len*5];
+    memset(tmp3, 0, outbuf_len*5);
+    for(int i=0; i<outbuf_len; i++) {
+        sprintf(tmp3+i*5, "0x%02x ", outbuf[i]);
+    }
+
+    LOG(LOG_DEBUG,"outbuf: %s",tmp3);
 
 	return outbuf_len;
 }
