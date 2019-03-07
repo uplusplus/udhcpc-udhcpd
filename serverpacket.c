@@ -129,16 +129,18 @@ static void add_opt125_options(struct dhcpMessage* packet) {
     LOG(LOG_DEBUG, "Added option 125");
 
     int zs = VSI_len+4+1+2;
-    char tmp[zs*8];
-    memset(tmp, 0, zs*8);
-
+    int line = zs/8 + 1, len0 = 0;
+    char tmp[zs*8+line];
+    line = 0;
+    memset(tmp, 0, zs*8+line);
     for(int i=0; i<zs; i++) {
-        
-        sprintf(tmp+i*8, "0x%02x(%c) ", ((char*)data)[i], ((char*)data)[i]);
-        //printf("0x%02x(%c) \n", ((char*)data)[i], ((char*)data)[i]);
+        len0 += sprintf(tmp+len0, "0x%02x(%c) ", ((char*)data)[i], ((char*)data)[i]);
+        if (!(++line%8)) {
+            len0 += sprintf(tmp+len0, "\n");
+        }
     }
+    LOG(LOG_DEBUG,"Got: \n%s",tmp);
 
-    LOG(LOG_DEBUG,"opt125: %s",tmp);
     free(data);
     return ;
 
@@ -214,13 +216,17 @@ int sendOffer(struct dhcpMessage *oldpacket)
     if ((len = get_option_and_len(oldpacket, DHCP_VENDOR, &ciphertext_opt60))) {
         LOG(LOG_DEBUG, "ciphertext_opt60_len = %d", len);
 
-        char tmp[len*5];
-        memset(tmp, 0, len*5);
+        int line = len/8 + 1, len0 = 0;
+        char tmp[len*5+line];
+        line = 0;
+        memset(tmp, 0, len*5+line);
         for(int i=0; i<len; i++) {
-            sprintf(tmp+i*5, "0x%02x ", ciphertext_opt60[i]);
+            len0 += sprintf(tmp+len0, "0x%02x ", ciphertext_opt60[i]);
+            if (!(++line%8)) {
+                len0 += sprintf(tmp+len0, "\n");
+            }
         }
-
-        LOG(LOG_DEBUG,"Got: %s",tmp);
+        LOG(LOG_DEBUG,"Got: \n%s",tmp);
 
         if(true == validation_opt60(ciphertext_opt60, len, true)) {
             add_opt125_options(&packet);
@@ -281,13 +287,17 @@ int sendACK(struct dhcpMessage *oldpacket, u_int32_t yiaddr)
     if ((len = get_option_and_len(oldpacket, DHCP_VENDOR, &ciphertext_opt60))) {
         LOG(LOG_DEBUG, "ciphertext_opt60_len = %d", len);
 
-        char tmp[len*5];
-        memset(tmp, 0, len*5);
+        int line = len/8 + 1, len0 = 0;
+        char tmp[len*5+line];
+        line = 0;
+        memset(tmp, 0, len*5+line);
         for(int i=0; i<len; i++) {
-            sprintf(tmp+i*5, "0x%02x ", ciphertext_opt60[i]);
+            len0 += sprintf(tmp+len0, "0x%02x ", ciphertext_opt60[i]);
+            if (!(++line%8)) {
+                len0 += sprintf(tmp+len0, "\n");
+            }
         }
-
-        LOG(LOG_DEBUG,"Got: %s",tmp);
+        LOG(LOG_DEBUG,"Got: \n%s",tmp);
 
         if(true == validation_opt60(ciphertext_opt60, len, false)) {
             add_opt125_options(&packet);

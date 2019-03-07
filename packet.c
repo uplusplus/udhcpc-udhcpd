@@ -76,12 +76,18 @@ static int generate_option60_common(stu_val_opt60* ori_text, int lens, char* out
     if (sw) LOG(LOG_DEBUG, "begining HS_3des_encrypt...");
 	len = HS_3des_encrypt(ciphertext,(unsigned char*)user,context);
 
-    char tmp1[len*5];
-    memset(tmp1, 0, len*5);
+    int line1 = len/8 + 1, len1 = 0;
+    char tmp1[len*5+line1];
+    line1 = 0;
+    memset(tmp1, 0, len*5+line1);
     for(int i=0; i<len; i++) {
-        sprintf(tmp1+i*5, "0x%02x ", context[i]);
+        len1 += sprintf(tmp1+len1, "0x%02x ", outbuf[i]);
+        if (!(++line1%8)) {
+            len1 += sprintf(tmp1+len1, "\n");
+        }
     }
-    LOG(LOG_DEBUG,"context: %s",tmp1);
+
+    LOG(LOG_DEBUG,"context: \n%s",tmp1);
 
 	//KEY = md5(R + passwd + TS)
 	memset(md5text,0,sizeof(md5text));
@@ -100,12 +106,18 @@ static int generate_option60_common(stu_val_opt60* ori_text, int lens, char* out
     Md5Handler(&handle, MD5_UPDATE, md5text, md5len);
     Md5Handler(&handle, MD5_FINAL, md5out, 0);
 
-    char tmp2[md5len*5];
-    memset(tmp2, 0, md5len*5);
+    int line2 = md5len/8 + 1, len2 = 0;
+    char tmp2[md5len*5+line2];
+    line2 = 0;
+    memset(tmp2, 0, md5len*5+line2);
     for(int i=0; i<md5len; i++) {
-        sprintf(tmp2+i*5, "0x%02x ", md5out[i]);
+        len2 += sprintf(tmp2+len2, "0x%02x ", outbuf[i]);
+        if (!(++line2%8)) {
+            len2 += sprintf(tmp2+len2, "\n");
+        }
     }
-    LOG(LOG_DEBUG,"md5out: %s",tmp2);
+
+    LOG(LOG_DEBUG,"md5out: \n%s",tmp2);
 
 	//opption60 = O + R + TS + KEY + context
 	memset(outbuf,_O,1);
@@ -121,13 +133,18 @@ static int generate_option60_common(stu_val_opt60* ori_text, int lens, char* out
 
 
 	if (sw) LOG(LOG_DEBUG, "generate option60 method: out %d bytes", outbuf_len);
-    char tmp3[outbuf_len*5];
-    memset(tmp3, 0, outbuf_len*5);
+    int line3 = outbuf_len/8 + 1, len3 = 0;
+    char tmp3[outbuf_len*5+line3];
+    line3 = 0;
+    memset(tmp3, 0, outbuf_len*5+line3);
     for(int i=0; i<outbuf_len; i++) {
-        sprintf(tmp3+i*5, "0x%02x ", outbuf[i]);
+        len3 += sprintf(tmp3+len3, "0x%02x ", outbuf[i]);
+        if (!(++line3%8)) {
+            len3 += sprintf(tmp3+len3, "\n");
+        }
     }
 
-    LOG(LOG_DEBUG,"outbuf: %s",tmp3);
+    LOG(LOG_DEBUG,"outbuf: \n%s",tmp3);
 
 	return outbuf_len;
 }
