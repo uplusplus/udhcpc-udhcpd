@@ -213,7 +213,7 @@ int main(int argc, char *argv[])
 			continue;
 		}
         char szMac[18] = {0};
-        sprint(szMac, "%s:%s:%s:%s:%s:%s",
+        sprintf(szMac, "%02x:%02x:%02x:%02x:%02x:%02x",
                 packet.chaddr[0],
                 packet.chaddr[1],
                 packet.chaddr[2],
@@ -224,7 +224,7 @@ int main(int argc, char *argv[])
         for (;server_config.white_list[j]; j++) {
             //LOG(LOG_INFO, "server_config.white_list[%d] = %s", j, server_config.white_list[j]);
 
-            if (!strncmp(szMac, server_config.white_list[j], 16)) {
+            if (!strncasecmp(szMac, server_config.white_list[j], 16)) {
                 LOG(LOG_INFO, "server_config.white_list[%d] HIT !!", j);
                 goto labs;
             }
