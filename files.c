@@ -58,7 +58,7 @@ static int read_str_array(char *line, void *arg)
         }
         if (!(tmp[i++] = strdup(ttmp))) {
             DEBUG(LOG_ERR, "strdup failed.");
-            return -1;
+            return 0;
         }
         if (i>=cnt_item_list-1) {
             cnt_item_list += 4;
@@ -66,7 +66,7 @@ static int read_str_array(char *line, void *arg)
             if (!new_tmp) {
                 free(tmp);
                 DEBUG(LOG_ERR, "realloc failed.")
-                return -1;
+                return 0;
             }
             memset(new_tmp+i+1,0,4);
             tmp = new_tmp;
@@ -76,7 +76,7 @@ static int read_str_array(char *line, void *arg)
     *dest = tmp;
     //free(tmp);
 
-	return 0;
+	return 1;
 }
 
 static int read_u32(char *line, void *arg)

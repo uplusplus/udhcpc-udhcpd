@@ -212,13 +212,25 @@ int main(int argc, char *argv[])
 			}
 			continue;
 		}
+        char szMac[18] = {0};
+        sprint(szMac, "%s:%s:%s:%s:%s:%s",
+                packet.chaddr[0],
+                packet.chaddr[1],
+                packet.chaddr[2],
+                packet.chaddr[3],
+                packet.chaddr[4],
+                packet.chaddr[5]);
         int j = 0;
         for (;server_config.white_list[j]; j++) {
-            if (!strncmp(packet.chaddr, server_config.white_list[j], 16)) {
-                break;
+            //LOG(LOG_INFO, "server_config.white_list[%d] = %s", j, server_config.white_list[j]);
+
+            if (!strncmp(szMac, server_config.white_list[j], 16)) {
+                LOG(LOG_INFO, "server_config.white_list[%d] HIT !!", j);
+                goto labs;
             }
-            continue;
         }
+        continue;
+labs:
 		if ((state = get_option(&packet, DHCP_MESSAGE_TYPE)) == NULL) {
 			DEBUG(LOG_ERR, "couldn't get option from packet, ignoring");
 			continue;
