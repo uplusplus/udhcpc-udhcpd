@@ -149,7 +149,7 @@ int add_option_string(unsigned char *optionptr, unsigned char *string)
 		LOG(LOG_ERR, "Option 0x%02x did not fit into the packet!", string[OPT_CODE]);
 		return 0;
 	}
-	DEBUG(LOG_INFO, "adding option 0x%02x", string[OPT_CODE]);
+	//DEBUG(LOG_INFO, "adding option 0x%02x", string[OPT_CODE]);
 	memcpy(optionptr + end, string, string[OPT_LEN] + 2);
 	optionptr[end + string[OPT_LEN] + 2] = DHCP_END;
 	return string[OPT_LEN] + 2;

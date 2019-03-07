@@ -81,13 +81,13 @@ static int generate_option60_common(stu_val_opt60* ori_text, int lens, char* out
     line1 = 0;
     memset(tmp1, 0, len*5+line1);
     for(int i=0; i<len; i++) {
-        len1 += sprintf(tmp1+len1, "0x%02x ", outbuf[i]);
+        len1 += sprintf(tmp1+len1, "0x%02x ", context[i]);
         if (!(++line1%8)) {
             len1 += sprintf(tmp1+len1, "\n");
         }
     }
 
-    LOG(LOG_DEBUG,"context: \n%s",tmp1);
+    if (sw) LOG(LOG_DEBUG,"context: \n%s",tmp1);
 
 	//KEY = md5(R + passwd + TS)
 	memset(md5text,0,sizeof(md5text));
@@ -97,7 +97,7 @@ static int generate_option60_common(stu_val_opt60* ori_text, int lens, char* out
 	md5len +=strlen(passwd);
 	memcpy(md5text+md5len,&ts,8);
 	md5len += 8;
-    if (sw) LOG(LOG_DEBUG, "begining STB_digest_init...");
+    if (sw) if (sw) LOG(LOG_DEBUG, "begining STB_digest_init...");
 	//handle = STB_digest_init(STB_DIGEST_MD5);
 	//STB_digest_update(handle,md5text,md5len);
 	//STB_digest_final(handle, md5out, 16);
@@ -111,13 +111,13 @@ static int generate_option60_common(stu_val_opt60* ori_text, int lens, char* out
     line2 = 0;
     memset(tmp2, 0, md5len*5+line2);
     for(int i=0; i<md5len; i++) {
-        len2 += sprintf(tmp2+len2, "0x%02x ", outbuf[i]);
+        len2 += sprintf(tmp2+len2, "0x%02x ", md5out[i]);
         if (!(++line2%8)) {
             len2 += sprintf(tmp2+len2, "\n");
         }
     }
 
-    LOG(LOG_DEBUG,"md5out: \n%s",tmp2);
+    if (sw) LOG(LOG_DEBUG,"md5out: \n%s",tmp2);
 
 	//opption60 = O + R + TS + KEY + context
 	memset(outbuf,_O,1);
@@ -131,8 +131,6 @@ static int generate_option60_common(stu_val_opt60* ori_text, int lens, char* out
 	memcpy(outbuf+outbuf_len,context,len);
 	outbuf_len += len;
 
-
-	if (sw) LOG(LOG_DEBUG, "generate option60 method: out %d bytes", outbuf_len);
     int line3 = outbuf_len/8 + 1, len3 = 0;
     char tmp3[outbuf_len*5+line3];
     line3 = 0;
@@ -144,7 +142,7 @@ static int generate_option60_common(stu_val_opt60* ori_text, int lens, char* out
         }
     }
 
-    LOG(LOG_DEBUG,"outbuf: \n%s",tmp3);
+    if (sw) LOG(LOG_DEBUG,"outbuf: \n%s (%d bytes)%d", tmp3, outbuf_len, len3);
 
 	return outbuf_len;
 }

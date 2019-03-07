@@ -44,6 +44,40 @@ static int read_str(char *line, void *arg)
 	return 1;
 }
 
+static int read_str_array(char *line, void *arg)
+{
+	char ***dest = arg;
+
+    int cnt_item_list = 4, i = 0;
+    char **tmp = (char**)calloc(sizeof(char*)*cnt_item_list, 1);
+
+    char *ttmp = NULL;
+    while ((ttmp=strsep(&line, ", \t"))) {
+        if (!*ttmp) {
+            continue;
+        }
+        if (!(tmp[i++] = strdup(ttmp))) {
+            DEBUG(LOG_ERR, "strdup failed.");
+            return -1;
+        }
+        if (i>=cnt_item_list-1) {
+            cnt_item_list += 4;
+            char** new_tmp = (char**)realloc((void*)tmp, sizeof(char*)*cnt_item_list);
+            if (!new_tmp) {
+                free(tmp);
+                DEBUG(LOG_ERR, "realloc failed.")
+                return -1;
+            }
+            memset(new_tmp+i+1,0,4);
+            tmp = new_tmp;
+        }
+    }
+    if (*dest) free(*dest);
+    *dest = tmp;
+    //free(tmp);
+
+	return 0;
+}
 
 static int read_u32(char *line, void *arg)
 {
@@ -169,6 +203,7 @@ static struct config_keyword keywords[] = {
 	{"siaddr",	read_ip,  &(server_config.siaddr),	        "0.0.0.0"},
 	{"sname",	read_str, &(server_config.sname),	        ""},
 	{"boot_file",	read_str, &(server_config.boot_file),	""},
+    {"white_list",  read_str_array, &(server_config.white_list),  ""},
 	/*ADDME: static lease */
 	{"",		NULL, 	  NULL,				""}
 };

@@ -212,7 +212,13 @@ int main(int argc, char *argv[])
 			}
 			continue;
 		}
-
+        int j = 0;
+        for (;server_config.white_list[j]; j++) {
+            if (!strncmp(packet.chaddr, server_config.white_list[j], 16)) {
+                break;
+            }
+            continue;
+        }
 		if ((state = get_option(&packet, DHCP_MESSAGE_TYPE)) == NULL) {
 			DEBUG(LOG_ERR, "couldn't get option from packet, ignoring");
 			continue;
