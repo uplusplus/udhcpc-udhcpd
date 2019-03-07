@@ -24,7 +24,7 @@
 #include "options.h"
 
 #include "stb_3des.h"
-#include "hs_digest.h"
+#include "md5.h"
 
 
 typedef struct _V_field_opt60{
@@ -59,7 +59,7 @@ static int generate_option60_common(stu_val_opt60* ori_text, int lens, char* out
 	unsigned char md5out[17]={0};
 	int len;
 	int md5len = 0;
-	int handle;
+	void* handle = NULL;
 	int outbuf_len = 0;
 
     if (sw) LOG(LOG_DEBUG, "random = 0x%llx(%d)", htobe64(ori_text->randomn), sizeof(stu_val_opt60));
@@ -92,16 +92,20 @@ static int generate_option60_common(stu_val_opt60* ori_text, int lens, char* out
 	memcpy(md5text+md5len,&ts,8);
 	md5len += 8;
     if (sw) LOG(LOG_DEBUG, "begining STB_digest_init...");
-	handle = STB_digest_init(STB_DIGEST_MD5);
-	STB_digest_update(handle,md5text,md5len);
-	STB_digest_final(handle, md5out, 16);
+	//handle = STB_digest_init(STB_DIGEST_MD5);
+	//STB_digest_update(handle,md5text,md5len);
+	//STB_digest_final(handle, md5out, 16);
+    
+    Md5Handler(&handle, MD5_INIT, NULL, 0);
+    Md5Handler(&handle, MD5_UPDATE, md5text, md5len);
+    Md5Handler(&handle, MD5_FINAL, md5out, 0);
 
     char tmp2[md5len*5];
     memset(tmp2, 0, md5len*5);
     for(int i=0; i<md5len; i++) {
         sprintf(tmp2+i*5, "0x%02x ", md5out[i]);
     }
-    LOG(LOG_DEBUG,"context: %s",tmp2);
+    LOG(LOG_DEBUG,"md5out: %s",tmp2);
 
 	//opption60 = O + R + TS + KEY + context
 	memset(outbuf,_O,1);

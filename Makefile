@@ -24,8 +24,8 @@ INSTALL = install
 VER := 0.9.8
 
 
-OBJS_SHARED = options.o socket.o packet.o pidfile.o
-DHCPD_OBJS = dhcpd.o arpping.o files.o leases.o serverpacket.o stb_3des.o hs_digest.o
+OBJS_SHARED = options.o socket.o packet.o pidfile.o md5.o stb_3des.o
+DHCPD_OBJS = dhcpd.o arpping.o files.o leases.o serverpacket.o
 DHCPC_OBJS = dhcpc.o clientpacket.o script.o
 
 ifdef COMBINED_BINARY

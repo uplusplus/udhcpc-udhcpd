@@ -17,7 +17,7 @@ LOCAL_SRC_FILES := \
     leases.c \
     serverpacket.c \
     stb_3des.c \
-    hs_digest.c
+    md5.c
 
 LOCAL_CFLAGS := -DVERSION=\"0.9.8\" -D_BSD_SOURCE -std=c99
 
