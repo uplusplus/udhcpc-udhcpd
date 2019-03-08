@@ -95,7 +95,7 @@ int main(int argc, char *argv[])
 	int sig;
 	int opt;
     bool cfged = false;
-    const char * optstring = "u:p:f:";
+    const char * optstring = "u:p:f:C:";
 
 	OPEN_LOG("udhcpd");
 	LOG(LOG_INFO, "udhcp server (v%s) started", VERSION);
@@ -118,6 +118,10 @@ int main(int argc, char *argv[])
         case 'p':
             LOG(LOG_INFO, "Password = %s", optarg);
             password = optarg;
+            break;
+        case 'C':
+            LOG(LOG_INFO, "Checked ip conflict = %s", optarg);
+            server_config.chk_ip_conflict = atoi(optarg);
             break;
         case '?':
         default:

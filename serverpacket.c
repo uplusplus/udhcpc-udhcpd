@@ -184,7 +184,7 @@ int sendOffer(struct dhcpMessage *oldpacket)
 
 	/* otherwise, find a free IP */ /*ADDME: is it a static lease? */
 	} else {
-		packet.yiaddr = find_address(0, 0);
+		packet.yiaddr = find_address(0, server_config.chk_ip_conflict);
 		
 		/* try for an expired lease */
 		if (!packet.yiaddr) packet.yiaddr = find_address(1, 1);

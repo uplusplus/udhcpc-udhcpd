@@ -103,6 +103,7 @@ struct server_config_t {
 	u_int32_t server;		/* Our IP, in network order */
 	u_int32_t start;		/* Start address of leases, network order */
 	u_int32_t end;			/* End of leases, network order */
+    u_int32_t chk_ip_conflict;
 	struct option_set *options;	/* List of DHCP options loaded from the config file */
 	char *interface;		/* The name of the interface to use */
 	int ifindex;			/* Index number of the interface to use */
