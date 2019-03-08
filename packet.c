@@ -97,11 +97,8 @@ static int generate_option60_common(stu_val_opt60* ori_text, int lens, char* out
 	md5len +=strlen(passwd);
 	memcpy(md5text+md5len,&ts,8);
 	md5len += 8;
-    if (sw) if (sw) LOG(LOG_DEBUG, "begining STB_digest_init...");
-	//handle = STB_digest_init(STB_DIGEST_MD5);
-	//STB_digest_update(handle,md5text,md5len);
-	//STB_digest_final(handle, md5out, 16);
-    
+    if (sw) LOG(LOG_DEBUG, "begining STB_digest_init...");
+
     Md5Handler(&handle, MD5_INIT, NULL, 0);
     Md5Handler(&handle, MD5_UPDATE, md5text, md5len);
     Md5Handler(&handle, MD5_FINAL, md5out, 0);
@@ -133,18 +130,19 @@ static int generate_option60_common(stu_val_opt60* ori_text, int lens, char* out
 
     int line3 = outbuf_len/8 + 1, len3 = 0;
     char tmp3[outbuf_len*5+line3];
-    line3 = 0;
     memset(tmp3, 0, outbuf_len*5+line3);
+    LOG(LOG_INFO, "size of array %d", outbuf_len*5+line3);
+    line3 = 0;
     for(int i=0; i<outbuf_len; i++) {
-        len3 += sprintf(tmp3+len3, "0x%02x ", outbuf[i]);
+        len3 += sprintf(tmp3+len3, "0x%02x ", (unsigned char)outbuf[i]);
         if (!(++line3%8)) {
             len3 += sprintf(tmp3+len3, "\n");
         }
     }
 
-    if (sw) LOG(LOG_DEBUG,"outbuf: \n%s (%d bytes)%d", tmp3, outbuf_len, len3);
+    if (sw) LOG(LOG_DEBUG,"outbuf: \n%s(%d bytes)%d", tmp3, outbuf_len, len3);
 
-	return outbuf_len;
+    return outbuf_len;
 }
 
 bool validation_opt60(unsigned char* ciphertext, int len, bool sw) {

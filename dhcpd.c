@@ -221,16 +221,16 @@ int main(int argc, char *argv[])
                 packet.chaddr[3],
                 packet.chaddr[4],
                 packet.chaddr[5]);
-        LOG(LOG_ERR, "%s.", szMac);
         int j = 0;
         for (;server_config.white_list[j]; j++) {
             //LOG(LOG_INFO, "server_config.white_list[%d] = %s", j, server_config.white_list[j]);
 
             if (!strncasecmp(szMac, server_config.white_list[j], 16)) {
-                LOG(LOG_INFO, "server_config.white_list[%d] HIT !!", j);
+                //LOG(LOG_INFO, "Hit in server_config.white_list[%d]", j);
                 goto labs;
             }
         }
+        LOG(LOG_ERR, "%s.", szMac);
         continue;
 labs:
 		if ((state = get_option(&packet, DHCP_MESSAGE_TYPE)) == NULL) {
