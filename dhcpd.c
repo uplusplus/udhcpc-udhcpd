@@ -101,6 +101,7 @@ int main(int argc, char *argv[])
 	LOG(LOG_INFO, "udhcp server (v%s) started", VERSION);
 
 	memset(&server_config, 0, sizeof(struct server_config_t));
+    server_config.white_list = (char*)calloc(sizeof(char*), 1);
 
     while ((opt = getopt(argc, argv, optstring)) != -1) {
 	    switch (opt) {
@@ -220,6 +221,7 @@ int main(int argc, char *argv[])
                 packet.chaddr[3],
                 packet.chaddr[4],
                 packet.chaddr[5]);
+        LOG(LOG_ERR, "%s.", szMac);
         int j = 0;
         for (;server_config.white_list[j]; j++) {
             //LOG(LOG_INFO, "server_config.white_list[%d] = %s", j, server_config.white_list[j]);
@@ -240,14 +242,16 @@ labs:
 		lease = find_lease_by_chaddr(packet.chaddr);
 		switch (state[0]) {
 		case DHCPDISCOVER:
-			DEBUG(LOG_INFO,"received DISCOVER");
+            DEBUG(LOG_INFO, "+++++++++++++++  Received DISCOVER +++++++++++++++++");
+			//DEBUG(LOG_INFO,"received DISCOVER");
 			
 			if (sendOffer(&packet) < 0) {
 				LOG(LOG_ERR, "send OFFER failed");
 			}
 			break;			
  		case DHCPREQUEST:
-			DEBUG(LOG_INFO, "received REQUEST");
+            DEBUG(LOG_INFO, "+++++++++++++++  Received REQUEST ++++++++++++++++++");
+			//DEBUG(LOG_INFO, "received REQUEST");
 
 			requested = get_option(&packet, DHCP_REQUESTED_IP);
 			server_id = get_option(&packet, DHCP_SERVER_ID);

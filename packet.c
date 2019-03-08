@@ -203,7 +203,7 @@ int get_packet(struct dhcpMessage *packet, int fd)
 		LOG(LOG_ERR, "received bogus message, ignoring");
 		return -2;
 	}
-	DEBUG(LOG_INFO, "+++++++++++++++  Received a packet +++++++++++++++++");
+	//DEBUG(LOG_INFO, "+++++++++++++++  Received a packet +++++++++++++++++");
 	
 	if (packet->op == BOOTREQUEST && (vendor = get_option(packet, DHCP_VENDOR))) {
 		for (i = 0; broken_vendors[i][0]; i++) {

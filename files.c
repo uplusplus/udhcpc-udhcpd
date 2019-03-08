@@ -65,7 +65,7 @@ static int read_str_array(char *line, void *arg)
             char** new_tmp = (char**)realloc((void*)tmp, sizeof(char*)*cnt_item_list);
             if (!new_tmp) {
                 free(tmp);
-                DEBUG(LOG_ERR, "realloc failed.")
+                DEBUG(LOG_ERR, "realloc failed.");
                 return 0;
             }
             memset(new_tmp+i+1,0,4);
@@ -212,7 +212,7 @@ static struct config_keyword keywords[] = {
 int read_config(char *file)
 {
 	FILE *in;
-	char buffer[80], orig[80], *token, *line;
+	char buffer[8000], orig[8000], *token, *line;
 	int i;
 
 	for (i = 0; strlen(keywords[i].keyword); i++)
@@ -224,9 +224,9 @@ int read_config(char *file)
 		return 0;
 	}
 	
-	while (fgets(buffer, 80, in)) {
+	while (fgets(buffer, 8000, in)) {
 		if (strchr(buffer, '\n')) *(strchr(buffer, '\n')) = '\0';
-		strncpy(orig, buffer, 80);
+		strncpy(orig, buffer, 8000);
 		if (strchr(buffer, '#')) *(strchr(buffer, '#')) = '\0';
 		token = buffer + strspn(buffer, " \t");
 		if (*token == '\0') continue;
