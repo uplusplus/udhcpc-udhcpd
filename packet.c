@@ -52,6 +52,8 @@ static int generate_option60_common(stu_val_opt60* ori_text, int lens, char* out
 	unsigned char random_number[9] = {0};
 	uint64_t ts = 0;
 	uint64_t rd = 0;
+	uint64_t h_ts = 0;
+	uint64_t h_rd = 0;
 	unsigned char context[25] = {0};
 
 	char ciphertext[24] = {0};
@@ -66,6 +68,8 @@ static int generate_option60_common(stu_val_opt60* ori_text, int lens, char* out
     if (sw) LOG(LOG_DEBUG, "timest = 0x%llx(%lld)", htobe64(ori_text->timestamp),htobe64(ori_text->timestamp));
 	rd = (ori_text->randomn);
 	ts = (ori_text->timestamp);
+	h_ts = htobe64(ori_text->timestamp);
+	h_rd = htobe64(ori_text->randomn);
     if (sw) LOG(LOG_DEBUG, "begining memset...");
 
 
@@ -74,7 +78,7 @@ static int generate_option60_common(stu_val_opt60* ori_text, int lens, char* out
 	memcpy(ciphertext,&rd,8);
 	memcpy(ciphertext+8,&ts,8);
     if (sw) LOG(LOG_DEBUG, "begining HS_3des_encrypt...");
-	len = HS_3des_encrypt(ciphertext,(unsigned char*)user,context);
+	len = HS_3des_encrypt(ciphertext,(unsigned char*)user,strlen(user), context);
 
     int line1 = len/8 + 1, len1 = 0;
     char tmp1[len*5+line1];
@@ -97,11 +101,24 @@ static int generate_option60_common(stu_val_opt60* ori_text, int lens, char* out
 	md5len +=strlen(passwd);
 	memcpy(md5text+md5len,&ts,8);
 	md5len += 8;
-    if (sw) LOG(LOG_DEBUG, "begining STB_digest_init...");
 
-    Md5Handler(&handle, MD5_INIT, NULL, 0);
-    Md5Handler(&handle, MD5_UPDATE, md5text, md5len);
-    Md5Handler(&handle, MD5_FINAL, md5out, 0);
+	int i = 0;
+	char tmp[md5len*5];
+	memset(tmp, 0, md5len*5);
+	for (i=0; i<md5len; i++) {
+		sprintf(tmp+i*5, "0x%02x ", md5text[i]);
+		if (!((i+1)%8)) {
+			*(tmp+i*5+4) = '\n';
+		}
+	}
+
+	LOG(LOG_DEBUG,"Got md5: \n%s(%d bytes)", tmp, md5len);
+
+	if (sw) LOG(LOG_DEBUG, "begining STB_digest_init...");
+
+	Md5Handler(&handle, MD5_INIT, NULL, 0);
+	Md5Handler(&handle, MD5_UPDATE, md5text, md5len);
+	Md5Handler(&handle, MD5_FINAL, md5out, 0);
 
     int line2 = md5len/8 + 1, len2 = 0;
     char tmp2[md5len*5+line2];

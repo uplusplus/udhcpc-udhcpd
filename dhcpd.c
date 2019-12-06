@@ -101,7 +101,7 @@ int main(int argc, char *argv[])
 	LOG(LOG_INFO, "udhcp server (v%s) started", VERSION);
 
 	memset(&server_config, 0, sizeof(struct server_config_t));
-    server_config.white_list = (char*)calloc(sizeof(char*), 1);
+    server_config.white_list = (char**)calloc(sizeof(char*), 1);
 
     while ((opt = getopt(argc, argv, optstring)) != -1) {
 	    switch (opt) {
@@ -291,6 +291,7 @@ labs:
 			/* what to do if we have no record of the client */
 			} else if (server_id) {
 				/* SELECTING State */
+				LOG(LOG_INFO, "hava server_id, but anything not hint");
 
 			} else if (requested) {
 				/* INIT-REBOOT State */
@@ -307,6 +308,7 @@ labs:
 
 			} else {
 				 /* RENEWING or REBINDING State */
+				LOG(LOG_INFO, "anything not hint");
 			}
 			break;
 		case DHCPDECLINE:

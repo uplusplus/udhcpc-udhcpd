@@ -51,7 +51,7 @@ ifdef SYSLOG
 CFLAGS += -DSYSLOG
 endif
 
-CFLAGS += -W -Wall -Wstrict-prototypes -DVERSION='"$(VER)"' -fno-strict-aliasing
+CFLAGS += -W -Wall -Wstrict-prototypes -DVERSION='"$(VER)"' -fno-strict-aliasing -Wunused-result
 
 ifdef DEBUG
 CFLAGS += -g -DDEBUG

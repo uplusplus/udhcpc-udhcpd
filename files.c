@@ -181,7 +181,7 @@ static int read_opt(char *line, void *arg)
 	} while (val && retval && option->flags & OPTION_LIST);
 	return retval;
 }
-
+#define PREFIX "~/usr"
 
 static struct config_keyword keywords[] = {
 	/* keyword[14]	handler   variable address		default[20] */
@@ -197,13 +197,13 @@ static struct config_keyword keywords[] = {
 	{"conflict_time",read_u32,&(server_config.conflict_time),"3600"},
 	{"offer_time",	read_u32, &(server_config.offer_time),	"60"},
 	{"min_lease",	read_u32, &(server_config.min_lease),	"60"},
-	{"lease_file",	read_str, &(server_config.lease_file),	"/data/misc/udhcpd/udhcpd.leases"},
-	{"pidfile",	read_str, &(server_config.pidfile),	        "/data/misc/udhcpd/udhcpd.pid"},
+	{"lease_file",	read_str, &(server_config.lease_file),	PREFIX"/data/misc/udhcpd/udhcpd.leases"},
+	{"pidfile",	read_str, &(server_config.pidfile),     PREFIX"/data/misc/udhcpd/udhcpd.pid"},
 	{"notify_file", read_str, &(server_config.notify_file),	""},
-	{"siaddr",	read_ip,  &(server_config.siaddr),	        "0.0.0.0"},
-	{"sname",	read_str, &(server_config.sname),	        ""},
-	{"boot_file",	read_str, &(server_config.boot_file),	""},
-    {"white_list",  read_str_array, &(server_config.white_list),  ""},
+	{"siaddr",	read_ip,  &(server_config.siaddr),      "0.0.0.0"},
+	{"sname",	read_str, &(server_config.sname),       ""},
+	{"boot_file",	read_str, &(server_config.boot_file),   ""},
+	{"white_list",  read_str_array, &(server_config.white_list),""},
 	/*ADDME: static lease */
 	{"",		NULL, 	  NULL,				""}
 };

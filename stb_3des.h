@@ -95,6 +95,6 @@ void des3_cbc_decrypt( des3_context *ctx,
                        int len );
 
 
-int HS_3des_encrypt(char okey[24],const unsigned char* in_buff, unsigned char* out_buff);
+int HS_3des_encrypt(char okey[24],const unsigned char* in_buff,int, unsigned char* out_buff);
 #endif /* des.h */
 

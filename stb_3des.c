@@ -953,20 +953,18 @@ int main(int argc,char **argv)
 }
 
 #endif
-int HS_3des_encrypt(char okey[24],const unsigned char* in_buff,unsigned char* out_buff)
+int HS_3des_encrypt(char okey[24],const unsigned char* in_buff, int in_len, unsigned char* out_buff)
 {
 	des3_context ctx3;
-	unsigned int len,m,i;
+	unsigned int m,i;
 	char key[24];	
 	char inBuf[128]={0};
-
-	len = strlen((char *)in_buff);
-	m = 8 - len % 8;
-	strncpy(inBuf,in_buff,len);
-	memset(inBuf+len,m,m);	// 136 = 17 * 8       
-        des3_set_3keys(&ctx3,(uint8*)okey);	
-	len += m;
-        des3_encrypt(&ctx3,(uint8*)inBuf,(uint8*)out_buff,len);
+	m = 8 - in_len % 8;
+	strncpy(inBuf,in_buff,in_len);
+	memset(inBuf+in_len,m,m);	// 136 = 17 * 8       
+	in_len += m;
+	des3_set_3keys(&ctx3,(uint8*)okey);	
+	des3_encrypt(&ctx3,(uint8*)inBuf,(uint8*)out_buff,in_len);
         
-	return len;					
+	return in_len;					
 }
