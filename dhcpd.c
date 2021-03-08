@@ -225,6 +225,7 @@ int main(int argc, char *argv[])
                 packet.chaddr[3],
                 packet.chaddr[4],
                 packet.chaddr[5]);
+	if (!access("/tmp/udhcpd_need_whitelist", F_OK)) {
         int j = 0;
         for (;server_config.white_list[j]; j++) {
             //LOG(LOG_INFO, "server_config.white_list[%d] = %s", j, server_config.white_list[j]);
@@ -236,6 +237,7 @@ int main(int argc, char *argv[])
         }
         LOG(LOG_ERR, "%s.", szMac);
         continue;
+	}
 labs:
 		if ((state = get_option(&packet, DHCP_MESSAGE_TYPE)) == NULL) {
 			DEBUG(LOG_ERR, "couldn't get option from packet, ignoring");
