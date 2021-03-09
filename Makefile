@@ -61,8 +61,8 @@ CFLAGS += -Os -fomit-frame-pointer
 STRIP=$(CROSS_COMPILE)strip
 endif
 
-all: $(EXEC1) $(EXEC2) $(EXEC3)
-	$(STRIP) --remove-section=.note --remove-section=.comment $(EXEC1) $(EXEC2) $(EXEC3)
+all: $(EXEC1) #$(EXEC2) $(EXEC3)
+	$(STRIP) --remove-section=.note --remove-section=.comment $(EXEC1) #$(EXEC2) $(EXEC2)
 
 $(OBJS1) $(OBJS2) $(OBJS3): *.h Makefile
 $(EXEC1) $(EXEC2) $(EXEC3): Makefile
