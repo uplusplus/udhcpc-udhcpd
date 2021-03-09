@@ -212,30 +212,33 @@ int sendOffer(struct dhcpMessage *oldpacket)
 		lease_time_align = server_config.lease;
 	/* ADDME: end of short circuit */		
 	add_simple_option(packet.options, DHCP_LEASE_TIME, htonl(lease_time_align));
-    int len = 0;
-    if ((len = get_option_and_len(oldpacket, DHCP_VENDOR, &ciphertext_opt60))) {
-        LOG(LOG_DEBUG, "ciphertext_opt60_len = %d", len);
 
-        int line = len/8 + 1, len0 = 0;
-        char tmp[len*5+line];
-        line = 0;
-        memset(tmp, 0, len*5+line);
-        for(int i=0; i<len; i++) {
-            len0 += sprintf(tmp+len0, "0x%02x ", ciphertext_opt60[i]);
-            if (!(++line%8)) {
-                len0 += sprintf(tmp+len0, "\n");
-            }
-        }
-        LOG(LOG_DEBUG,"Got: \n%s",tmp);
+	int len = 0;
+	if (!(len = get_option_and_len(oldpacket, DHCP_VENDOR, &ciphertext_opt60))) {
+		LOG(LOG_DEBUG, "Not found opt60, no response");
+		return 0;
+	}
+	LOG(LOG_DEBUG, "ciphertext_opt60_len = %d", len);
 
-        if(true == validation_opt60(ciphertext_opt60, len, true)) {
-            add_opt125_options(&packet);
-        } else {
-            LOG(LOG_DEBUG, "validation failed, no response\n");
-            return 0;
-        }
-    }
-    
+	int line = len/8 + 1, len0 = 0;
+	char tmp[len*5+line];
+	line = 0;
+	memset(tmp, 0, len*5+line);
+	for(int i=0; i<len; i++) {
+		len0 += sprintf(tmp+len0, "0x%02x ", ciphertext_opt60[i]);
+		if (!(++line%8)) {
+			len0 += sprintf(tmp+len0, "\n");
+		}
+	}
+	LOG(LOG_DEBUG,"Got: \n%s",tmp);
+
+	if(true == validation_opt60(ciphertext_opt60, len, true)) {
+		add_opt125_options(&packet);
+	} else {
+		LOG(LOG_DEBUG, "validation failed, no response\n");
+		return 0;
+	}
+
 	curr = server_config.options;
 	while (curr) {
 		if (curr->data[OPT_CODE] != DHCP_LEASE_TIME)
@@ -283,30 +286,33 @@ int sendACK(struct dhcpMessage *oldpacket, u_int32_t yiaddr)
 	}
 	
 	add_simple_option(packet.options, DHCP_LEASE_TIME, htonl(lease_time_align));
-    int len = 0;
-    if ((len = get_option_and_len(oldpacket, DHCP_VENDOR, &ciphertext_opt60))) {
-        LOG(LOG_DEBUG, "ciphertext_opt60_len = %d", len);
 
-        int line = len/8 + 1, len0 = 0;
-        char tmp[len*5+line];
-        line = 0;
-        memset(tmp, 0, len*5+line);
-        for(int i=0; i<len; i++) {
-            len0 += sprintf(tmp+len0, "0x%02x ", ciphertext_opt60[i]);
-            if (!(++line%8)) {
-                len0 += sprintf(tmp+len0, "\n");
-            }
-        }
-        LOG(LOG_DEBUG,"Got: \n%s",tmp);
+	int len = 0;
+	if (!(len = get_option_and_len(oldpacket, DHCP_VENDOR, &ciphertext_opt60))) {
+		LOG(LOG_DEBUG, "Not found opt60. no response");
+		return 0;
+	}
+	LOG(LOG_DEBUG, "ciphertext_opt60_len = %d", len);
 
-        if(true == validation_opt60(ciphertext_opt60, len, false)) {
-            add_opt125_options(&packet);
-        } else {
-            LOG(LOG_DEBUG, "validation failed, no response\n");
-            return 0;
-        }
-    }
-	
+	int line = len/8 + 1, len0 = 0;
+	char tmp[len*5+line];
+	line = 0;
+	memset(tmp, 0, len*5+line);
+	for(int i=0; i<len; i++) {
+		len0 += sprintf(tmp+len0, "0x%02x ", ciphertext_opt60[i]);
+		if (!(++line%8)) {
+			len0 += sprintf(tmp+len0, "\n");
+		}
+	}
+	LOG(LOG_DEBUG,"Got: \n%s",tmp);
+
+	if(true == validation_opt60(ciphertext_opt60, len, false)) {
+		add_opt125_options(&packet);
+	} else {
+		LOG(LOG_DEBUG, "validation failed, no response\n");
+		return 0;
+	}
+
 	curr = server_config.options;
 	while (curr) {
 		if (curr->data[OPT_CODE] != DHCP_LEASE_TIME)
