@@ -70,14 +70,14 @@ static int generate_option60_common(stu_val_opt60* ori_text, int lens, char* out
 	ts = (ori_text->timestamp);
 	h_ts = htobe64(ori_text->timestamp);
 	h_rd = htobe64(ori_text->randomn);
-    if (sw) LOG(LOG_DEBUG, "begining memset...");
+    // if (sw) LOG(LOG_DEBUG, "begining memset...");
 
 
 	//context = 3des_enrypt(R + user + TS)
 	memset(ciphertext,0,sizeof(ciphertext));
 	memcpy(ciphertext,&rd,8);
 	memcpy(ciphertext+8,&ts,8);
-    if (sw) LOG(LOG_DEBUG, "begining HS_3des_encrypt...");
+    // if (sw) LOG(LOG_DEBUG, "begining HS_3des_encrypt...");
 	len = HS_3des_encrypt(ciphertext,(unsigned char*)user,strlen(user), context);
 
     int line1 = len/8 + 1, len1 = 0;
@@ -91,7 +91,7 @@ static int generate_option60_common(stu_val_opt60* ori_text, int lens, char* out
         }
     }
 
-    if (sw) LOG(LOG_DEBUG,"context: \n%s",tmp1);
+    // if (sw) LOG(LOG_DEBUG,"context: \n%s",tmp1);
 
 	//KEY = md5(R + passwd + TS)
 	memset(md5text,0,sizeof(md5text));
@@ -112,9 +112,9 @@ static int generate_option60_common(stu_val_opt60* ori_text, int lens, char* out
 		}
 	}
 
-	LOG(LOG_DEBUG,"Got md5: \n%s(%d bytes)", tmp, md5len);
+	// LOG(LOG_DEBUG,"Got md5: \n%s(%d bytes)", tmp, md5len);
 
-	if (sw) LOG(LOG_DEBUG, "begining STB_digest_init...");
+	// if (sw) LOG(LOG_DEBUG, "begining STB_digest_init...");
 
 	Md5Handler(&handle, MD5_INIT, NULL, 0);
 	Md5Handler(&handle, MD5_UPDATE, md5text, md5len);
@@ -131,7 +131,7 @@ static int generate_option60_common(stu_val_opt60* ori_text, int lens, char* out
         }
     }
 
-    if (sw) LOG(LOG_DEBUG,"md5out: \n%s",tmp2);
+    // if (sw) LOG(LOG_DEBUG,"md5out: \n%s",tmp2);
 
 	//opption60 = O + R + TS + KEY + context
 	memset(outbuf,_O,1);
@@ -148,7 +148,7 @@ static int generate_option60_common(stu_val_opt60* ori_text, int lens, char* out
     int line3 = outbuf_len/8 + 1, len3 = 0;
     char tmp3[outbuf_len*5+line3];
     memset(tmp3, 0, outbuf_len*5+line3);
-    LOG(LOG_INFO, "size of array %d", outbuf_len*5+line3);
+    // LOG(LOG_INFO, "size of array %d", outbuf_len*5+line3);
     line3 = 0;
     for(int i=0; i<outbuf_len; i++) {
         len3 += sprintf(tmp3+len3, "0x%02x ", (unsigned char)outbuf[i]);
@@ -167,9 +167,10 @@ bool validation_opt60(unsigned char* ciphertext, int len, bool sw) {
     int sum_self_len = generate_option60_common((stu_val_opt60*) ciphertext, len, sum_by_self_buf_out, sw);
     // not equals
     if(memcmp(&(((stu_val_opt60*)ciphertext)->_O), sum_by_self_buf_out, sum_self_len>256?256:sum_self_len)) {
-        LOG(LOG_ERR, "not equals");
+        LOG(LOG_ERR, "opt60 not equals");
         return false;
     }
+    LOG(LOG_INFO, "opt 60 equals");
     return true;
 }
 

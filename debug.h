@@ -56,7 +56,7 @@
 
 #ifdef DEBUG
 # undef DEBUG
-# define DEBUG(level, str, args...) LOG(level, str, ## args)
+# define DEBUG LOG
 # define DEBUGGING
 #else
 # define DEBUG(level, str, args...) do {;} while(0)

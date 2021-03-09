@@ -126,7 +126,7 @@ static void add_opt125_options(struct dhcpMessage* packet) {
     memcpy(data->datas+4+1, "CTCIPTVDHCPAAA", VSI_len);
 
     add_option_string(packet->options, (unsigned char *)data);
-    LOG(LOG_DEBUG, "Added option 125");
+    LOG(LOG_DEBUG, "Calc option 125");
 
     int zs = VSI_len+4+1+2;
     int line = zs/8 + 1, len0 = 0;
